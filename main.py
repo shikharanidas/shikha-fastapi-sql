@@ -345,7 +345,6 @@ def download_candidate_resume(cand_id:int,db:Session=Depends(get_db)):
     resume=db_cand.resume
     return FileResponse(f'job_portal/files/{resume}',media_type="application/pdf",filename=resume)
 
-# @app.put("/employers/forget-reset-password/")
 # candidates
 
 
@@ -433,8 +432,6 @@ def welcome_candidates():
 def candidate_login(username:str=Form(...),password:str=Form(...),db:Session=Depends(get_db)):
     db_candidate = crud.get_candidate_by_email(db, email=username)
     if db_candidate:
-        # correct_username = secrets.compare_digest(credentials.username, db_candidate.email)
-        # correct_password = secrets.compare_digest(password, db_candidate.hashed_password)
         if not verify_password(password, db_candidate.hashed_password):
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
@@ -477,12 +474,6 @@ def update_profile(candidate:schemas.CandidateUpdate,skills:List[str]=Query(None
             raise HTTPException(status_code=422, detail="Invalid value for post_grad!!")
         crud.update_candidate(db, candidate=candidate, cand_id=cand_id)
 
-    # if candidate.skills!=None:
-    #     if candidate.skills == "":
-    #         raise HTTPException(status_code=422, detail="Fields can't be empty!!")
-    #     if (bool(re.match('^[a-zA-Z]*$', candidate.skills)) == False):
-    #         raise HTTPException(status_code=422, detail="Invalid value for skills!!")
-    #     crud.update_candidate(db,candidate=candidate,cand_id=cand_id)
     if skills!=None:
         len_of_skills = len(skills)
         skills_list=crud.get_cand_skills(db,cand_id=cand_id)
@@ -527,8 +518,6 @@ def update_profile(candidate:schemas.CandidateUpdate,skills:List[str]=Query(None
         if len(candidate.contact) < 10 or len(candidate.contact) > 10:
             raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,detail="Contact should be of 10 digits!!")
         crud.update_candidate(db,candidate=candidate,cand_id=cand_id)
-    # if candidate.dob!=None and candidate.dob!=datetime.date(datetime.utcnow()):
-    #     crud.update_candidate(db,candidate=candidate,cand_id=cand_id)
     if candidate.address!=None:
         if candidate.address == "":
             raise HTTPException(status_code=422, detail="Fields can't be empty!!")
@@ -603,45 +592,8 @@ def post_job(job: schemas.JobCreate,employer: schemas.Employer = Depends(get_cur
         raise HTTPException(status_code=422, detail="Invalid value for annual salary!!")
     if (bool(re.match('^[a-zA-Z. ]*$', job.job_location)) == False):
         raise HTTPException(status_code=422, detail="Invalid value for job location!!")
-    # date_format = '%Y-%m-%d'
-    # apply_from = job.apply_from.strftime("%Y-%m-%d")
-    # try:
-    #     dt_apply_from=datetime.strptime(apply_from, date_format)
-    #     job=schemas.JobCreate.parse_obj(dt_apply_from)
-    # except ValueError:
-    #     raise HTTPException(status_code=422, detail="Invalid date format!!Correct format is yyyy-mm-dd!!")
-    # apply_to = job.apply_to.strftime("%Y-%m-%d")
-    # try:
-    #     dt_apply_to = datetime.strptime(apply_to, date_format)
-    #     job = schemas.JobCreate.parse_obj(dt_apply_to)
-    # except ValueError:
-    #     raise HTTPException(status_code=422, detail="Invalid date format!!Correct format is yyyy-mm-dd!!")
-    
-    #
-    # if not bool(datetime.datetime.strptime(str(job.apply_to), "%Y-%m-%d")):
-    #     raise HTTPException(status_code=422, detail="Invalid date format!!Correct format is yyyy-mm-dd!!")
-    # apply_to=job.apply_to.strftime("%Y-%m-%d")
-    # apply_from=job.apply_from.strftime("%Y-%m-%d")
-    # if (bool(re.match('^([1-9]|0[1-9]|1[0-9]|2[0-9]|3[0-1])(\.|-|/)([1-9]|0[1-9]|1[0-2])(\.|-|/)([0-9][0-9]|19[0-9][0-9]|20[0-9][0-9])$|^([0-9][0-9]|19[0-9][0-9]|20[0-9][0-9])(\.|-|/)([1-9]|0[1-9]|1[0-2])(\.|-|/)([1-9]|0[1-9]|1[0-9]|2[0-9]|3[0-1])$',
-    #                   job.apply_to)) == False):
-    #     raise HTTPException(status_code=422, detail="Invalid date format!!Correct format is yyyy-mm-dd!!")
-    # if (bool(re.match(
-    #         '^([1-9]|0[1-9]|1[0-9]|2[0-9]|3[0-1])(\.|-|/)([1-9]|0[1-9]|1[0-2])(\.|-|/)([0-9][0-9]|19[0-9][0-9]|20[0-9][0-9])$|^([0-9][0-9]|19[0-9][0-9]|20[0-9][0-9])(\.|-|/)([1-9]|0[1-9]|1[0-2])(\.|-|/)([1-9]|0[1-9]|1[0-9]|2[0-9]|3[0-1])$',
-    #         job.apply_from)) == False):
-    #     raise HTTPException(status_code=422, detail="Invalid date format!!Correct format is yyyy-mm-dd!!")
-    # apply_to = datetime.strptime(job.apply_to, '%Y-%m-%d')
-    # apply_to_date = datetime.date(apply_to)
-    # job.apply_to:date=apply_to_date
-    # # job.apply_to=date(job.apply_to)
-    # apply_from = datetime.strptime(job.apply_from, '%Y-%m-%d')
-    # apply_from_date = datetime.date(apply_from)
-    # job.apply_from:date=apply_from_date
-    # # job.apply_from = date(job.apply_from)
-    # # job.apply_to=datetime.strftime(datetime.strptime(job.apply_to,'%Y-%m-%d'),'%Y-%m-%d')
-
     return crud.create_job(db=db, job=job, emp_id=emp_id)
-    # return crud.create_job(db=db, job=job,apply_to=apply_to_date,apply_from=apply_from_date, emp_id=emp_id)
-
+    
 @app.get("/jobs/", response_model=List[schemas.Jobs],tags=["jobs"])
 def get_all_jobs(db: Session = Depends(get_db)):
     jobs = crud.get_jobs(db)
@@ -699,15 +651,6 @@ def apply_for_job(job_id:int,resume:UploadFile=File(...),candidate: schemas.Cand
 @app.post("/admin/login/",tags=["admin"])
 def admin_login(username:str=Form(...),password:str=Form(...),db:Session=Depends(get_db)):
     db_admin = crud.get_admin(db, userid=username,password=password)
-    # if db_admin:
-    #     correct_username = secrets.compare_digest(username, db_admin.userid)
-    #     correct_password = secrets.compare_digest(password, db_admin.password)
-    #     if not (correct_username and correct_password):
-    #         raise HTTPException(
-    #             status_code=status.HTTP_401_UNAUTHORIZED,
-    #             detail="Incorrect username or password",
-    #             headers={"WWW-Authenticate": "Basic"},
-    #         )
     if db_admin is None:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials!!")
     return {"message":"Logged in Successfully!!"}
@@ -719,10 +662,6 @@ def admin_login(username:str=Form(...),password:str=Form(...),db:Session=Depends
     })
 def welcome_admin():
     return FileResponse("job_portal/images/emp4.jpg",media_type="image/jpg")
-
-
-
-
 
            #employers
 
