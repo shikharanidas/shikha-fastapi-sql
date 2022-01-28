@@ -130,9 +130,6 @@ def update_candidate(db: Session, candidate: schemas.CandidateUpdate,cand_id:int
     if candidate.contact != None:
         db.query(models.Candidate).filter(models.Candidate.cand_id == cand_id). \
             update({models.Candidate.contact: candidate.contact}, synchronize_session=False)
-    # if candidate.dob!=None:
-    #     db.query(models.Candidate).filter(models.Candidate.cand_id == cand_id).\
-    #         update({models.Candidate.dob:candidate.dob},synchronize_session=False)
     if candidate.address!=None:
         db.query(models.Candidate).filter(models.Candidate.cand_id == cand_id).\
             update({models.Candidate.address:candidate.address},synchronize_session=False)
@@ -142,9 +139,6 @@ def update_candidate(db: Session, candidate: schemas.CandidateUpdate,cand_id:int
     if candidate.post_grad!=None:
         db.query(models.Candidate).filter(models.Candidate.cand_id == cand_id).\
             update({models.Candidate.post_grad:candidate.post_grad},synchronize_session=False)
-    # if candidate.skills!=None:
-    #     db.query(models.Candidate).filter(models.Candidate.cand_id == cand_id).\
-    #         update({models.Candidate.skills:candidate.skills},synchronize_session=False)
     db.commit()
     return True
 
@@ -201,16 +195,8 @@ def get_job(db: Session, job_id: int):
     return db.query(models.Jobs).filter(models.Jobs.job_id == job_id).first()
 
 def get_jobs_by_title(db: Session,title:str):
-    t= db.query(models.Jobs.title).all()
-    # for f in range(len(t)):
-    #     t[f]=t[f].lower()
-    # for i in t:
-    #     if i.lower() == title.lower():
-    #         yield db.query(models.Jobs).filter(models.Jobs.title == title.lower()).all()
-    #        db.query(models.Jobs).filter(models.Jobs.title == title.lower()).all(),\
     return db.query(models.Jobs).filter(models.Jobs.title == title.lower()).all()
-    # return db.query(models.Jobs).filter(title.lower()==[t[f] for f in range(len(t))]).all()
-
+    
 def create_job(db: Session, job: schemas.JobCreate, emp_id: int):
     db_job = models.Jobs(title=job.title,
                          post=job.post,
@@ -225,21 +211,6 @@ def create_job(db: Session, job: schemas.JobCreate, emp_id: int):
     db.commit()
     db.refresh(db_job)
     return db_job
-#
-# def create_job(db: Session, job: schemas.JobCreate,apply_to:date,apply_from:date, emp_id: int):
-#     db_job = models.Jobs(title=job.title,
-#     post=job.post,
-#                          job_location=job.job_location,
-#                          company_name=job.company_name,
-#                          description=job.description,
-#                          annual_salary_in_lakhs=job.annual_salary_in_lakhs,
-#                          apply_to=apply_to,
-#                          apply_from=apply_from,
-#     posted_by=emp_id)
-#     db.add(db_job)
-#     db.commit()
-#     db.refresh(db_job)
-#     return db_job
 
 def check_posted_jobs(db:Session,job_id:int,emp_id:int):
     return db.query(models.Jobs).filter(models.Jobs.job_id == job_id,models.Jobs.posted_by==emp_id).first()
